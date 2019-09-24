@@ -10,10 +10,15 @@ library(
 )
 
 pipelines.template("pypiserver", env, { context ->
-  stages.template("Build image", "docker", {
-    sh "docker build -t pypiserver ."
-  })
-  stages.template("Push image", "docker", {
-    utils.tagAndPushImage("pypiserver", "pypiserver", "latest", "latest")
-  })
+  stage("Build image") {
+    container("docker") {
+      sh "docker build -t pypiserver ."
+    }
+  }
+
+  stage("Push image") {
+    container("docker") {
+      utils.tagAndPushImage("pypiserver", "pypiserver", "latest", "latest")
+    }
+  }
 })
