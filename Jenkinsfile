@@ -21,4 +21,4 @@ pipelines.template("pypiserver", env, { context ->
       utils.tagAndPushImage("pypiserver", "pypiserver", "latest", "latest")
     }
   }
-})
+}, [:])
