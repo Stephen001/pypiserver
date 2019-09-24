@@ -1,24 +1,25 @@
-library(
-  identifier: "themelio@master",
-  retriever: modernSCM(
-    [
-      $class: 'GitSCMSource',
-      remote: 'https://github.com/rehfeldmedical/themelio.git',
-      credentialsId: 'github'
-    ]
-  )
-)
-
-pipelines.template("pypiserver", env, { context ->
-  stage("Build image") {
-    container("docker") {
-      sh "docker build -t pypiserver ."
+pipeline {
+    agent {
+        kubernetes {
+            defaultContainer 'jnlp'
+            yamlFile 'agent-pod.yaml'
+        }
     }
-  }
-
-  stage("Push image") {
-    container("docker") {
-      utils.tagAndPushImage("pypiserver", "pypiserver", "latest", "latest")
+    
+    stages {
+        stage('Build Image') {
+            steps {
+                container('docker') {
+                    sh 'docker build -t docker-registry.default.svc:5000/pypiserver/pypiserver:latest .'
+                }
+            }
+        }
+        stage('Push Image') {
+            steps {
+                container('docker') {
+                    sh 'docker push docker-registry.default.svc:5000/pypiserver/pypiserver:latest'
+                }
+            }
+        }
     }
-  }
-}, [:])
+}

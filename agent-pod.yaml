@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: docker-build-pod
+spec:
+  serviceAccountName: jenkins
+  containers:
+    - name: openshift
+      image: stephen001/oc:latest
+      tty: true
+      command:
+        - cat
+      envFrom:
+        - configMapRef:
+            name: build-environment
+    - name: docker
+      image: docker:latest
+      tty: true
+      command:
+        - cat
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: dockersocket
+          mountPath: /var/run/docker.sock
+        - name: dockercfg
+          mountPath: /root
+          readOnly: true
+  volumes:
+    - name: dockersocket
+      hostPath:
+        path: /var/run/docker.sock
+    - name: dockercfg
+      secret:
+        secretName: jenkins-dockercfg-bxzk4
